@@ -1,0 +1,47 @@
+--- 
+title: "The Nordic welfare-state model"
+author: "Olli Kangas, Joakim Palme, and Markus Kainu"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+# output:
+#   bookdown::tufte_html_book:
+#     toc: yes
+#     css: toc.css
+documentclass: book
+# classoption: twoside,symmetric
+# classoption: 11pt
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+always_allow_html: yes
+github-repo: rstudio/bookdown-demo
+description: "This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook."
+---
+
+# Mistä onkaan kyse?
+
+Tämän demon juju on havainnollistaa, millasia **erilaisia julkaisuformaatteja** voidaan tuottaa **yhdestä ja samasta lähteestä** (= teksti + kuvioiden ja taulukoiden ohjelmakoodi) käyttämällä nykyaikaisia *avoimen lähdekoodin* tieteellisen julkaisemisen teknologioita.
+
+Asian havainnollistamiseksi kirjoitin vastajulkaistun kirjanluvun **Kangas, Palme & Kainu (2016)** *The Nordic welfare-state model* ns. raakatekstimuotoon, eli copy-pastasin pelkän tekstin word-tiedostosta ja lisäsin jo valmiina olleen R-kielisen analyysikoodin sopiviin kohtiin tekstin väliin. Tätä muotoa kutsutaan ns. *[RMarkdown](http://rmarkdown.rstudio.com/)*-muodoksi, joka siis tekninen tai tieteellinen asiakirja kirjoitetaan upottamalla ohjelmakoodi (esim. tilastolliset analyysit) itse tekstin lomaan. Ohjelmoinnissa tätä kutsutaan [*Literate programming*](https://en.wikipedia.org/wiki/Literate_programming)-lähestymistavaksi, jossa hurskaana toiveena on kirjoittaa dokumentteja jotka ovat ymmärrettäviä sekä ihmiselle että tietokoneelle.
+
+*Literate programming* on ollut vuosikymmeniä käytössä teknisessä dokumentaatiossa ja esiteltiin alkujaan [Donald Knuthin](http://www-cs-faculty.stanford.edu/~uno/) samannimisessä kirjassa jo vuonna 1984. Knuth kehitti lähestymistavan kirjoittaessan [TeX](https://en.wikipedia.org/wiki/TeX)-ladontajärjestelmää, joka on kenties tuttu [latex](https://fi.wikipedia.org/wiki/Latex)-järjestelmää^[*latex* yksi tässä demossa käytettävä teknologia] tunteville. Mutta asiaan, tieteellisen julkaisemisen näkökulmasta *literate programming* on tullut kiinnostavaksi uusien teknologioiden myötä, jotka mahdollistavat "lopputuotteet" monissa eri formaateissa. Teknologian kehitys ja tieteellisen julkaisemisen avautuminen ovat samaan aikaan lisänneet uudenlaisten sisältöformaattien kysyntää. Kuten tiedämme, *paperikirjan paikka on uhattuna*.
+
+Olen koonnut alla olevaan taulukkoon muutaman eri formaatin johon "käänsin" yhden ja saman lähdekoodin. Käytin perusasetuksia ilman mitään justeerauksia, minkä vuoksi lopputulos antaa toki toivomisen varaan. Taulukossa ensimmäisenä on kirjan valmis taitto, joka on tehty taittoohjelmassa (Indesign) ns. käsin. Valmiin taiton alla on sama sisältö seitsemässä eri formaatissa, joista kolme on html-muotoista selaimelle, kaksi pdf:ää printattavaksi, yksi älypuhelimen/tabletin ruudulle skaalattu pdf ja viimeisenä ns. e-kirja. Kokeilkaa eri formaatteja sekä puhelimella/tabletilla että tietokoneella ja miettikää missä formaatissa tämä *kitkerä mutta tärkeä asiateksti* menisi helpoiten kurkusta alas.
+
+
+| Linkki | formaatti | Kuvaus |
+| ----------- | --------------  | ---------------- |
+| [valmis julkaisu](valmis.pdf) | pdf | Kirjanluku kustantajan tms. taittamasta teoksesta |
+| [gitbook](gitbook/index.html) | html | [gitbook](https://www.gitbook.com/)-projektin mukainen verkkosivu |
+| [bootstrap](bootstrap.html) | html | [yeti](https://bootswatch.com/yeti/)-teemaa käyttövä kevyt ja eri laitteilla responsiivinen html-toteutus |
+| [tufte-html](tufte/index.html) | html | Yksinkertainen Edvard Tuften oppeja mukaileva css-toteutus |
+| [latex-book](gitbook/bookdown-demo.pdf) | latex-pdf | Perinteinen latexin `book`-luokan printti-kirja | 
+| [tufte-book](tufte/bookdown-demo.pdf) | latex-pdf | Edvard Tuften oppeja mukaileva printti-kirja | 
+| [älypuhelinoptimoitu-pdf](alypuhelin.pdf) | latex-pdf | Älypuhelimen/tabletin ruudulta kivasti natiivikoossa luettavissa oleva versio | 
+| [epub-e-kirja](gitbook/bookdown-demo.epub) | epub | Ns. sähköinen kirja. Näyttää rumalta kaikissa laitteissa  | 
+
+
+## Niin, siis miksi?
+
+Kirjat ovat kalliita, niiden tekeminen on työlästä ja joissain tapauksissa ne vanhenevat nopeasti. Tekstipohjaiseen lähdekoodi-ideaan ja avoimiin teknologioihin pohjautuvat julkaisuprosessit ovat toistettavissa ohjelmallisesti kun virheitä pitää korjata tai kun aineistot päivittyvät. Samalla tutkimuksen tekemisen vaivalla itse julkaisu taittuu moneen eri formaattiin ja käyttötarpeeseen.

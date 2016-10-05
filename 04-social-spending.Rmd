@@ -1,0 +1,140 @@
+# Nordicness in Social Spending?
+
+Perhaps the most frequently used indicator to measure the extent of welfare-state commitments is public social spending. Nordic countries, in particular, are famous for their high social spending. However, social spending may be a somewhat controversial measure. Undoubtedly, it is a good measure of the size of public welfare spending but since the measure is a share (i.e., quotient) of spending in relation to the GDP it is sensitive to what happens, on the one hand, in social spending (i.e., dividend) and, on the other hand, in the GDP (i.e., divisor). 
+	Some researchers rely on spending data (e.g., Castles, 2004). Indeed, by decomposing spending data into smaller items and by relating spending to various background data on population composition and changes in clienteles, it is possible to say something more reliable about the generosity of different social policy sub-programs. Here, however, we will not elaborate on the issue. In Investigating Welfare State Change (Clasen & Siegel, 2007) there are more thorough analyses of what can and cannot be done with spending data, and of the relationship between social rights and social spending–based approaches (Kangas & Palme, 2007).
+When it comes to the total level of social spending in relation to gross domestic product (GDP), the Nordic countries do not form a distinct group among rich OECD countries. Whereas in the late 1970s and early 1980s Sweden (spending 26% of its GDP for social purposes), the Netherlands (25%), and Denmark (24%) were the biggest welfare spenders, Finland, Norway, and Iceland devoted 18%, 16%, and 11% to social protection, respectively. The mean for the total OECD was 15%. In the mid-2010s, Iceland, with her 17%, lies clearly under the present OECD mean (22%), and Norway spends the same as the mean. The biggest European social spenders today are France (32%), Finland and Belgium (31%), Denmark (30%), Italy (29%), and Sweden (28%) (OECD, 2016b). Thus, in social spending, the Nordic countries bifurcate into the group of traditional big spenders, Sweden and Denmark, joined by Finland, and into the low spenders, Norway and Iceland. 
+However, comparing Finland and Norway, which had rather similar starting levels in the 1980s, we see the problems of using spending data as an indicator of the quality of social protection. During economic shocks (e.g. the1990s and post-2008 shocks in Finland) GDP growth stagnates while unemployment rates go up. This increases the number of people who receive social transfers, which in turn yields higher social spending. To put it more technically: in Finland, the dividend increased, whereas the divisor decreased and consequently the equation yielded a substantially bigger quotient. When it comes to Norway, the country has strongly benefitted from North Sea oil. The rapid growth of the GDP has compensated for increased welfare spending, i.e., the growth in the divisor has balanced the growth in the dividend producing a stable and smallish quotient. This explains why Norway, which according to Figure 2 is one of the most generous welfare states, is only a “mediocre” spender.
+
+## Transfer vs. service welfare states
+
+Often welfare states are divided into social transfer states and social service states. Whereas social insurance–based transfer states are characteristic of Central Europe, the Nordic countries are held as the best example of social service states (Kautto, 2010; Hussain, Kangas, & Kvist, 2012). We look into this in Figure 3. In both time points Sweden, Denmark, and Finland are placed in the upper right-hand corner, with above-average spending on transfers and social services. Norway lies in the middle and Iceland displays average spending on services and low spending on transfers. However, if we look at in-kind benefit spending (social services) and spending in cash (income transfers), the story is different. Spending in services relative to transfers in 2014 was 1.6 times higher in Iceland, 1.3 in Sweden, 1.2 in Australia, 1.1 in Denmark, the United Kingdom, and the United States, and 1.0 in the Netherlands. In all the remaining countries, the value of transfers exceeded the value of services.
+
+```{r figuuri3}
+
+# loaded .csv from here: http://stats.oecd.org/Index.aspx?DataSetCode=SOCX_AGG into /data
+if (!file.exists("./local_data/SOCX_AGG_22022016145605802.RData")){
+  dat <- read_csv("C:/btsync/data/oecd/SOCX_AGG_22022016145605802.csv")
+  save(dat, file="./local_data/SOCX_AGG_22022016145605802.RData")
+} else load("./local_data/SOCX_AGG_22022016145605802.RData")
+
+
+dat1 <- dat %>% filter(Measure == "In percentage of Gross Domestic Product", Year %in% c(1990,2014)) %>%
+  filter(`Type of Expenditure` %in% c("Benefits in kind","Cash benefits","Total"),
+         Branch %in% "Total",
+         # Source %in% c("Public and mandatory private")) %>%
+         # Source %in% c("Private (Mandatory and Voluntary)")) %>%
+         Source %in% c("Public")) %>%
+
+  group_by(Country,Year,`Type of Expenditure`) %>%
+  summarise(m = mean(Value, na.rm=TRUE)) %>%
+  spread(., key = `Type of Expenditure`, value = m) %>%
+  mutate(regime = recode_regime2(Country)) %>%
+  filter(!regime %in% "East Asian")
+
+
+
+# for the mean grid
+# x80 <- as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 1990,"Cash benefits"])
+# y80 <- as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 1990,"Benefits in kind"])
+# x14 <- as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 2014,"Cash benefits"])
+# y14 <- as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 2014,"Benefits in kind"])
+#
+# # keskiarvoviivat
+# h.lines <- data.frame(Year=c(1990,2014), xval=c(as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 1990,"Cash benefits"]),
+#                                                        as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 2014,"Cash benefits"])))
+# v.lines <- data.frame(Year=c(1990,2014), yval=c(as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 1990,"Benefits in kind"]),
+#                                                        as.numeric(dat1[dat1$Country %in% "OECD - Total" & dat1$Year == 2014,"Benefits in kind"])))
+
+dat1 <- dat1[!is.na(dat1$regime),]
+
+# compute iceland in-kind for 2014
+dat1$`Benefits in kind` <- ifelse(dat1$Country == "Iceland" & dat1$Year == 2014, dat1$Total - dat1$`Cash benefits`, dat1$`Benefits in kind`)
+# Remove odd data points
+dat1 <- dat1 %>% filter(!`Benefits in kind` == 0 | !`Cash benefits` == 0)
+
+# compute ratio for the label
+dat1$ratio <- round(dat1$`Benefits in kind` / dat1$`Cash benefits`,1)
+
+p <- ggplot(dat1, aes(x= `Cash benefits`,y=`Benefits in kind`,
+                      # color=regime,
+                      group=Country))
+# mean grid
+# p <- p + geom_vline(aes(xintercept=xval), data=h.lines, linetype = "dashed", color = "grey70")
+# p <- p + geom_hline(aes(yintercept=yval), data=v.lines, linetype = "dashed", color = "grey70")
+# plot
+p <- p + geom_point(size=2, color= "grey20") + geom_path(size=1.1, color= "grey20")
+# p <- p + facet_wrap(~Year, scales = "fixed")
+# p <- p + ggrepel::geom_text_repel(
+#   aes(fill = regime, label = paste("x=",round(`Cash benefits`,1),
+#                                    "\ny=",round(`Benefits in kind`,1),
+#                                    "\n",Year)), show.legend=F, alpha=.7,size=3
+# )
+p <- p + ggrepel::geom_text_repel(
+  aes(label = Year), color= "grey20",
+  show.legend=F, alpha=.7,size=3, nudge_x=.3
+)
+p <- p + ggrepel::geom_label_repel(
+  data=dat1 %>%  filter(Year == 2014,
+                        regime %in% c("Southern Europe","Eastern Europe","Nordic Countries")),
+  aes(fill = regime, color = regime, label = paste0(Country," (",ratio,")")), show.legend=T, size=3.5, alpha=.9,
+  fontface = 'bold', nudge_y=-1, nudge_x=.5,  segment.size = 0.8,
+  box.padding = unit(0.15, "lines"),
+  point.padding = unit(0.5, "lines")
+)
+p <- p + ggrepel::geom_label_repel(
+  data=dat1 %>%  filter(Year == 2014,
+                        !regime %in% c("Southern Europe","Eastern Europe","Nordic Countries")),
+  aes(fill = regime, color = regime, label = paste0(Country," (",ratio,")")), show.legend=T, size=3.5, alpha=.9,
+  fontface = 'bold', nudge_y=1, nudge_x=-.5, segment.size = 0.8,
+  box.padding = unit(0.15, "lines"),
+  point.padding = unit(0.5, "lines")
+)
+
+
+p <- p + theme_minimal() + theme(legend.position = "top") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 9)) +
+  # theme(axis.text.x= element_text(size = 9, angle=90, vjust= 0.5)) +
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 11, face = "bold")) +
+  guides(colour = guide_legend(override.aes = list(size=4))) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_fill_manual(values=palette_distinctive1)
+# p <- p + scale_color_manual(values=palette_distinctive1)
+p <- p + scale_fill_manual(values=c("grey55","grey40","grey20","black","grey80"))
+p <- p + scale_color_manual(values=c("black","white","white","white","black"))
+
+
+p <- p + labs(x="Cash transfers (% of GDP)",
+              y="Social services (% of GDP)")
+
+```
+
+
+
+```{r transfers, echo=FALSE, fig.width=9, fig.height=9, fig.pos="h!", fig.cap="Benefits in kind and in cash (\\% of GDP) in 1990 and 2014. (Social services to social transfers ratio in parentheses) (OECD, 2016b)"}
+
+print(p)
+
+```
+
+Direct public provisions are only one channel – albeit in most cases the most important channel – to obtain social security. Welfare can be obtained by other means such as tax breaks for social purposes or private individual/collective/contractual benefits. OECD, in its publications, has tried to calculate the value and impact of taxation and private provisions when calculating “net total social spending.” Thus, the OECD calculations include both public and private expenditures. They also account for the effect of the tax system by direct and indirect taxation and by tax breaks for social purposes (OECD, 2013). 
+
+The OECD figures show that private spending on social protection is high in the United States (10.8% of GDP), Netherlands (7.4%), Switzerland (7.0%), the United Kingdom (6.2%), and Iceland (5.9%). Private expenditures play a role also in other Nordic countries, except Iceland: Denmark leads (5.1%), followed by Sweden (3.2%), Norway (2.1%), and Finland (1.2%). In terms of total net social spending, the biggest welfare sectors are found in France, the United States, and Belgium, with spending rates of 28 to 32% of the GDP. In the Nordic countries, the total spending varies from 20.8% of GDP in Iceland to 26.1% in Sweden (OECD, 2016b).
+
+The shift from gross public to net total spending on one hand substantially reduces differences within the OECD hemisphere and between the Nordic countries, and on the other hand, the shift in focus changes our understanding of what constitutes big, medium, and small spenders. As a result, Anglo-Saxon countries turn out to be big spenders, whereas the Nordic countries are medium spenders at best. 
+
+If we do not take into account the alternative ways to obtain social security, we will get a biased picture on both the level of protection and the costs of social security in different countries. Ultimately, the Nordic countries are not the biggest spenders, and the social sector in the Anglo-Saxon countries is not as small as usually believed. However, the source of financing – private or public – has important ramifications for distributional outcomes in terms of income inequality and poverty, as will be seen later.
+
+## Financing social spending
+
+
+In his impressive research project Growth to Limits: The Western European Welfare States Since World War II, Peter Flora (1986) argued that welfare-state growth was over. Flora’s verdict was a bit too hasty: in many countries, the welfare state is still expanding. Social services, in particular, are developing in Southern and Central European countries that are gradually catching up to the Nordic countries. But even in the Nordic countries, social services have expanded since 1990 (see Figure 3). In relation to GDP, public social spending increased from 1990 to 2014 by 5.1 percentage points in Denmark and 7.2 points in Finland. In Sweden and Norway the spending level in 2014 was the same as it was in 1990. In Iceland, spending from 1990 to 2014 grew by 3.0 percentage points (OECD, 2016b).
+
+High spending levels require high levels of revenues, and all Nordic countries display higher gross tax rates in relation to GDP than the OECD average (34% in 2014). In that sense, the idea of high spenders being high taxers is still valid. However, there are intra-Nordic differences in tax rates, development patterns, and the tax structure. Denmark’s tax rate is the highest (51% in 2014) and the tax rates have constantly increased since 1991. Finland’s tax rate is second highest (44%), followed by Sweden (43%), Norway (39%), and Iceland (38%). In Norway and Sweden, current tax rates are somewhat lower than in the early 1980s. In Denmark, Finland, and Iceland, the tax burden has increased since 1991 (OECD, 2015b). 
+
+Not only are tax rates different, but within the Nordic countries there are substantial differences in how the tax burden is divided between different sources. While Denmark does not rely on employees’ or employers’ fees, such contributions play a substantial role in Sweden (7% for employees and 31% for the employer) and Finland (7% and 24%, respectively), and play a minor role in Norway (8% and 13%) and Iceland (6% and 8%). Given the greying population and increasing pension and old age care expenditures, there are pressures to increase taxes. The problem is that global tax competition may make increasing taxes impossible. Also, shifts in political power constellations (see Figure 1) may limit tax increases, and if taxes are used to finance responses to growing needs, incidence of taxes will most probably be shifted. While the parties on the left traditionally supported progressive taxation, the bourgeois parties have favored flat-rate and consumption taxes. The non-socialist tax policies may result in increased consumption taxes combined with higher user fees for various social services. These developments would negate redistributive effects of taxation and thereby increase income inequality. Generosity of the income transfers, most obviously of pensions, may be the target of austerity measures: the Swedish pension and tax reforms of the 1990s are a case point. In all transfer schemes we will probably see increased conditionality – which is linked to growing efforts to increase activation measures in income-transfer schemes. The Danish government’s job creation scheme – nyttejob – is a good example of this kind of a measure.   
+

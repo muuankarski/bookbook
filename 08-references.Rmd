@@ -1,0 +1,48 @@
+ <!-- `r if (knitr:::is_html_output()) '# References {-}'` -->
+
+# References
+
+- Alestalo, M., Flora, P., & Uusitalo, H. (1985). Structure and politics in the making of the welfare state: Finland in comparative perspective. Small States in Comparative Perspective. Essays for Erik Allardt, The Norwegian University Press, Oslo.
+- Alestalo, M., & Kuhnle, S. (1987). The Scandinavian Route: Economic, Social, and Political Developments in Denmark, Finland, Norway and Sweden. In R. Erikson, E. J. Hanson, S. Ringen, & H. Uusitalo (Eds.), The Scandinavian Model: Welfare States and Welfare Research. M. E. Sharpe.
+- Allardt, E. (1986). The civic conception of the welfare state in Scandinavia. In R. Rose & R. Shiratori (Eds.), The Welfare State East and West. Oxford University Press.
+- Baldwin, P. (1990). The Politics of Social Solidarity: Class Bases of the European Welfare State, 1875 –1975. Cambridge University Press.
+- Castles, F. G. (1978). Social Democratic Image of Society: A Study of the Achievement and Origins of Scandinavian Social Democracy in Comparative Perspective. Routledge & Kegan Paul.
+- Castles, F. G. (2004). The Future of the Welfare State: Crisis Myths and Crisis Realities: Crisis Myths and Crisis Realities. OUP Oxford.
+- Christiansen, N. F., Petersen, K., Edling, N., & Haave, P. (Eds.). (2006). The Nordic Model of Welfare: A Historical Reappraisal. Museum Tusculanum Press.
+- Clasen, J., & Siegel, N. A. (2007). Investigating Welfare State Change: The ‘dependent Variable Problem’ in Comparative Analysis. Edward Elgar Publishing.
+- Corak, M. (2013). Income Inequality, Equality of  Opportunity, and Intergenerational Mobility. Bonn: Forschungsinstitut zur Zukunft der Arbeit Institute for the Study of Labor, Discussion Paper No. 7520.
+- Esping-Andersen, G. (1988). Politics Against Markets: The Social Democratic Road to Power. Princeton University Press.
+- Esping-Andersen, G., & Korpi, W. (1987). From Poor Relief to Institutional Welfare States: the Development of Scandinavian Social Policy. In R. Erikson, E. J. Hanson, S. Ringen, & H. Uusitalo (Eds.), The Scandinavian Model: Welfare States and Welfare Research. M. E. Sharpe.
+- Eurostat. (2011). EU-SILC: Statistics on Income and Living Conditions. Longitudinal data. Eurostat. The Statistical Office of the European Communities.
+- Ferrarini, T. (2006). Families, States and Labour Markets: Institutions, Causes and Consequences of Family Policy in Post-war Welfare States. Edward Elgar Publishing.
+- Ferrera, M. (2010). The South European Countries. In F. G. Castles, S. Leibfried, & J. Lewis (Eds.), The Oxford Handbook of the Welfare State. Oxford Handbooks Online.
+- Flora, P. (1986). Growth to Limits: The Western European Welfare States Since World War II. Walter de Gruyter.
+- Fritzell, J., Bäckman, O., & Ritakallio, V.-M. (2012). Income inequality and poverty: do the Nordic countries still constitute a family of their own? In J. Kvist, J. Fritzell, B. Hvinden, & O. Kangas (Eds.), Changing Social Equality: The Nordic Welfare Model in the 21st Century (pp. 165–186). Policy Press. Retrieved from http://policypress.universitypressscholarship.com/view/10.1332/policypress/9781847426604.001.0001/upso-9781847426604-chapter-8
+- Gornick, J. C., & Jäntti, M. (2009). Child Poverty in Upper-Income Countries: Lessons from the Luxembourg Income Study. In S. B. Kamerman, S. Phipps, & A. Ben-Arieh (Eds.), From Child Welfare to Child Well-Being (pp. 339–368). Springer Netherlands. Retrieved from http://link.springer.com/chapter/10.1007/978-90-481-3377-2_19
+- Hobson, B. (2002). Making Men Into Fathers: Men, Masculinities and the Social Politics of Fatherhood. Cambridge University Press.
+- Hort, S. E. O. (2014). Social Policy, Welfare State, and Civil Society in Sweden. Arkiv Academic Press.
+- Hussain, A., M., Kangas, O., & Kvist, J. (2012. Welfare state institutions, unemployment and poverty: Comparative analysis of unemployment benefits and labour market participation in 15 European Union countries. In J. Kvist, J. Fritzell, B. Hvinden, O. Kangas, & B. Hvinden (Eds.), Changing Social Equality: The Nordic Welfare Model in the 21st Century. Policy Press.
+- Kangas, O., Lundberg, U., & Ploug, N. (2010). Three Routes to Pension Reform: Politics and Institutions in Reforming Pensions in Denmark, Finland and Sweden. Social Policy & Administration, 44(3), 265–284.
+- Kangas, O., & Palme, J. (2005). Coming Late — Catching Up: The Formation of a ‘Nordic Model’. In O. Kangas & J. Palme (Eds.), Social Policy and Economic Development in the Nordic Countries (pp. 17–59). Palgrave Macmillan UK. Retrieved from http://link.springer.com/chapter/10.1057/9780230523500_2
+- Kangas, O., & Palme, J. (2007). Social Rights, Structural Needs and Social Expenditure : A comparative study of 18 OECD countries 1960 – 2000. In J. Clasen & N. A. Siegel (Eds.), Investigating Welfare State Change: The ‘dependent Variable Problem’ in Comparative Analysis. Edward Elgar Publishing.
+- Kautto, M. (2010). The Nordic Countries. In F. G. Castles, S. Leibfried, & J. Lewis (Eds.), The Oxford Handbook of the Welfare State. Oxford Handbooks Online.
+- Kildal, N., & Kuhnle, S. (2005). Normative Foundations of the Welfare State: The Nordic Experience. Routledge.
+- Korpi, W. (1978). The Working Class in Welfare Capitalism: Work, Unions, and Politics in Sweden. Routledge & Kegan Paul.
+- Korpi, W. (1980). Social policy and distributional conflict in the capitalist democracies. A preliminary comparative framework. West European Politics, 3(3), 296–316. http://doi.org/10.1080/01402388008424288
+- Korpi, W., & Palme, J. (1998). The Paradox of Redistribution and Strategies of Equality: Welfare State Institutions, Inequality, and Poverty in the Western Countries. American Sociological Review, 63(5), 661–687. http://doi.org/10.2307/2657333
+- Luxembourg Income Study. (2016). LIS Inequality and Poverty Key Figures. Retrieved from http://www.lisdatacenter.org/wp-content/uploads/data-key-inequality-workbook.xlsx
+- OECD. (2008). Growing unequal?: Income distribution and poverty in OECD countries. Paris: Organisation for Economic Co-operation and Development.
+- OECD. (2011). How’s Life? Paris: Organisation for Economic Co-operation and Development. Retrieved from http://www.oecd-ilibrary.org/content/book/9789264121164-en
+- OECD. (2013). OECD Factbook 2013. Paris: Organisation for Economic Co-operation and Development. Retrieved from http://www.oecd-ilibrary.org/content/book/factbook-2013-en
+- OECD. (2015a). In It Together: Why Less Inequality Benefits All. Paris: Organisation for Economic Co-operation and Development. Retrieved from http://www.oecd-ilibrary.org/content/book/9789264235120-en
+- OECD. (2015b). OECD Tax Database. Retrieved 8 July 2015, from http://www.oecd.org/tax/tax-policy/tax-database.htm#A_RevenueStatistics
+- OECD. (2016b). Social Expenditure – Aggregated data. Retrieved 8 March 2016, from http://stats.oecd.org/Index.aspx?datasetcode=SOCX_AGG
+- Palme, J. (2000). The Nordic model and the modernisation of social protection in Europe. Copenhagen: Nordic Council of Ministers.
+- Salminen, K. (1993). Pension Schemes in the Making: A Comparative Study of the Scandinavian Countries. Central Pension Security Institute.
+- Smeeding, T. M. (2005). Government programs and social outcomes: The United States in comparative perspective (No. 426). LIS Working Paper Series. Retrieved from http://www.econstor.eu/handle/10419/95611
+- Stephens, J. D. (1979). The Transition from Capitalism to Socialism. University of Illinois Press.
+- Swenson, P. (2002). Capitalists Against Markets: The Making of Labor Markets and Welfare States in the United States and Sweden. Oxford University Press.
+- Wang, C., & Caminada, K. (2011). Disentangling Income Inequality and the Redistributive Effect of Social Transfers and Taxes in 36 LIS Countries (SSRN Scholarly Paper No. ID 1909941). Rochester, NY: Social Science Research Network. Retrieved from http://papers.ssrn.com/abstract=1909941
+- Åmark, K. (2005). Hundra år av välfärdspolitik: Välfärdsstatens framväxt i Norge och Sverige. Borea Förlag. Retrieved from http://www.diva-portal.org/smash/record.jsf?pid=diva2%3A181669&dswid=6404
+- Österbacka , E. (2004). It runs in the family: empirical analyses of family background and economic status. Åbo Akademi University Press.
+

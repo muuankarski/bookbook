@@ -1,0 +1,262 @@
+# Redistribution, Inequality, Poverty, and Deprivation
+
+According to international comparisons, the Nordic countries are among the most equal societies in the world (see, e.g., Luxembourg Income Study, 2016). There are a number of explanations for the high level of equality. First, we can refer to some important long-standing social-structural preconditions. In Scandinavia, nobility and landed aristocracy never played such an important role as they did in feudal Central Europe, where arable land was mainly owned by the aristocracy, serfdom was more common, and at best peasants only rented the land they cultivated, whereas in the Nordic hemisphere peasants owned their fields. Second, the independent peasantry had rather strong formal rights in local/municipal decision-making, and they also had their collective representation at the meetings of estates. The free peasantry was an effective counter-balancing force vis-à-vis the nobility and urban bourgeoisie. Thus, pre-industrial social structures were already rather egalitarian in Scandinavia (Kildal & Kuhnle, 2005, p. 26). 
+
+Since the independent peasantry formed a distinct social class with political representation, the Nordic class structure, instead of being bi-polar as in most other countries, came to be tri-polar (Castles, 1978). This class structure was more or less directly mirrored in the political sphere. In addition to the left- and right-wing parties, relatively strong agrarian (later center) parties were important political forces, which conditioned the early Nordic social policymaking. Therefore, the rural population’s interests could not be neglected when initial social policy measures were planned. That was the reason, Scandinavians began to legislate national insurance covering the whole population rather than legislating workers’ insurance limited to the industrial working class, as many Central European countries did (Kangas & Palme, 2005).
+
+The second explanation we focus on is of more recent origin and emphasizes the role of social (policy) institutions. The Nordic countries have established a universal model of social protection, where basic security benefits and services (based on residence) are combined with earnings-related social insurance programs (Palme, 2000). In addition, there are programs targeted at vulnerable groups. In the transfer system, there are hence three basic components: citizenship benefits, including old-age pension systems and family support; earnings-related social insurance benefits, which have the same conditions for all social sectors; and income-tested benefits such as housing benefits for families with children and the elderly, as well as social assistance.
+
+The universalism emerged as a response to the different needs of the rural and urban populations, as well as to the political mobilization of these interests. Similarly, in the post-war period, using earnings-related social insurance has been a strategy to include workers and salaried employees, and both public and private sectors, within the same protection system, or at least same kinds of protection systems. The expansion of services has partly been a response to ageing populations but is also intrinsically connected to the growth in female labor-force participation, as well as to political participation by women. 
+
+As do income transfers and taxes, social services have important equalizing effects. In fact, all social policy amounts to redistribution. Some of that redistribution is vertical – that is, from rich to poor through systems of taxation and benefits. A great deal of redistribution is horizontal, over the life cycle. This is the case with pensions, children’s allowances, and parents’ allowances. Another type of redistribution relates to pooling social risks by means of health and work-injury insurance and by unemployment insurance.
+
+International comparisons (e.g., Wang & Caminada, 2011; Fritzell, Bäckman, & Ritakallio, 2012) show that there are no major differences in factor-income inequalities between developed countries, whereas there are substantial differences in inequalities of disposable income. The Gini index for factor income in the Nordic countries is about the same as in the United States (Wang & Caminada, 2011, p. 13). However, due to the equalizing effects of taxes and income transfers, the countries are at opposite ends of the continuum of disposable income inequalities.
+
+The same pattern is visible in poverty levels. The poverty-alleviation effect in the Nordic countries is 75%; that is, social transfers lift 75% of the pre-transfer poor out of poverty. The numbers for the Central European states are about the same, while the corresponding percentage for the United States is less than 30% (Smeeding, 2005, table 4). The story is much the same concerning child poverty (see Gornick & Jäntti, 2009). Social policy models thus differ in their capacity to decrease income inequalities and to alleviate poverty, and although the Anglo-Saxon countries may be big total (public plus private) spenders, ultimately they are much more unequal and have higher poverty levels than the Nordic countries do. Thus, the question is not only how much spending but how and to whom resources are distributed.
+
+```{r figuuri4}
+if (!file.exists("./local_data/IDD_09032016134732686.RData")){
+  download.file("http://stats.oecd.org/Download.ashx?type=csv&Delimiter=%2c&IncludeTimeSeriesIdentifiers=False&LabelType=CodeAndLabel&LanguageCode=en",
+                # download.file("http://statlinks.oecdcode.org/812015091p1g003.xls", # could use direct link I hacked
+                destfile="./local_data/IDD_09032016134732686.csv")
+  dat <- read.csv("./local_data/IDD_09032016134732686.csv", stringsAsFactors = FALSE)
+  save(dat, file="./local_data/IDD_09032016134732686.RData")
+} else load("./local_data/IDD_09032016134732686.RData")
+
+d <- dat %>% filter(Measure %in% c("Gini (disposable income, post taxes and transfers)",
+                                   "Mean Poverty gap after taxes and transfers, Poverty line 60%",
+                                   "Poverty rate after taxes and transfers, Poverty line 60%"),
+                    Age.group %in% "Total population",
+                    METHODO %in% "METH2011") %>%
+  mutate(regime = recode_regime2(Country)) %>%
+  select(Country,Measure,Year,Value,regime) %>%
+  spread(., key = Measure, value = Value) %>%
+  # pick first and last year
+  filter(!is.na(`Gini (disposable income, post taxes and transfers)`),
+         !is.na(`Mean Poverty gap after taxes and transfers, Poverty line 60%`),
+         !is.na(`Poverty rate after taxes and transfers, Poverty line 60%`)) %>%
+  gather(., key = Measure, value = Value, 4:6) %>%
+  group_by(Country) %>%
+  filter(Year %in% c(min(Year),max(Year))) %>%
+  ungroup() %>%
+  filter(!is.na(regime),
+         !regime %in% "East Asian",
+         !Country %in% c("Poland","Switzerland")) %>%
+  mutate(period = ifelse(Year <= 2008, "Mid 2000", ifelse(Year > 2008, "Early 2010",NA))) %>%
+mutate(period = factor(period, levels=c("Mid 2000","Early 2010")),
+       Country = factor(Country, levels=clist)) #%>%
+  # mutate(Value = Value * 100)
+
+levels(d$Country)[levels(d$Country)== "United Kingdom"] <- "United \nKingdom"
+levels(d$Country)[levels(d$Country)== "United States"] <- "United \nStates"
+levels(d$Country)[levels(d$Country)== "Czech Republic"] <- "Czech \nRepublic"
+levels(d$Country)[levels(d$Country)== "New Zealand"] <- "New \nZealand"
+levels(d$Country)[levels(d$Country)== "Slovak Republic"] <- "Slovakia"
+
+d$Measure[d$Measure %in% "Mean Poverty gap after taxes and transfers, Poverty line 60%"] <- "Mean poverty gap after taxes and transfers, poverty line 60%"
+d$Measure[d$Measure %in% "Poverty rate after taxes and transfers, Poverty line 60%"] <- "Poverty rate after taxes and transfers, poverty line 60%"
+
+
+p <- ggplot(d, aes(x=period,
+                   y=Value,
+                   color=Measure,group=Measure))
+p <- p + facet_grid(.~Country)
+p <- p + geom_text(data=d[d$Measure == "Mean poverty gap after taxes and transfers, poverty line 60%",],
+                     aes(x=period,y=.06,
+                         label=Year),
+                   angle=90, color="black",alpha=.6,
+                   size=3.5,hjust=.3, family=fontti)
+p <- p + geom_point() + geom_path()
+p <- p + theme_minimal() + theme(legend.position = "top") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 9)) +
+  # theme(axis.text.x= element_text(size = 7, angle = 90)) +
+  theme(axis.text.x= element_blank()) +
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 9, angle=90, face = "bold", vjust=0,family=fontti)) +
+  guides(colour = guide_legend(override.aes = list(size=4), direction="vertical", lineheight=.9)) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1,palette_distinctive1,palette_distinctive1,palette_distinctive1))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1,palette_distinctive1,palette_distinctive1,palette_distinctive1))
+# p <- p + scale_fill_grey(start = .6, end = 0)
+# p <- p + scale_color_grey(start = .6, end = 0)
+p <- p + scale_color_manual(values=c("black","grey30","grey60"))
+p <- p + scale_fill_manual(values=c("black","grey30","grey60"))
+
+
+# p <- p + facet_wrap(~regime, ncol = 2, scales="free")
+p <- p + labs(x=NULL,y=NULL)
+# p <- p + coord_cartesian(ylim=c(0.15,.45))
+```
+
+
+```{r gini2, echo=FALSE, fig.width=9, fig.height=6, fig.pos="h!", fig.cap="Changes in income inequality (Gini coefficient), poverty, and the poverty gap from the mid-2000s to the mid-2010s (OECD, 2015a, p. 24)"}
+
+print(p)
+
+```
+
+Although the Nordic welfare model has done well, the rise of poverty rates and of inequality (Figure 4) is faster in the Nordic countries than in many countries with other welfare models (OECD, 2008, 2015a). However, the poverty gap, that is, the distance from the average income of the poor to the national mean, is still the narrowest in the Netherlands, in a number of post-socialist countries, and in the Nordic countries (Figure 5; OECD, 2011, p. 52; OECD, 2015a).
+
+
+## Poverty and life possibilities
+
+
+From the social justice perspective, it can be argued that the situation of the worst-off in a society powerfully indicates how successful the society is. Children do not choose to be born and brought up by poor parents. Therefore, governments have a special responsibility to ensure that young residents have equal access to education, health care, etc., and that they should be entitled to necessities (e.g., nutrition and housing) so that they can take full advantage of these rights. Therefore, special attention to the position of this vulnerable group is warranted.
+
+The Nordic countries exhibit low levels of child poverty (varying from 10% in Denmark to 13% in Iceland) in comparison to many other countries (e.g., in the United Kingdom and the United States the child poverty rates are about 20% and 30%, respectively) (Luxembourg Income Study, 2016). As can be seen in Figure 5, the Nordic countries are in a unique class and there is a dramatic difference between the Nordics and the Anglo-Saxon countries regarding poverty in families with a single breadwinner. The dark side is that child poverty has increased even in the Nordic hemisphere and the relative distinctiveness of the Nordic countries in this respect has diminished, but they are still unique.
+
+The eradication of poverty is not merely a matter of expenditures and compensation. Rather, we argue that it is primarily a question of investing in human capital and risk-preventing measures. Where, when, and to whom you are born largely determines what opportunities you will have in life. One way to approach this issue is to look at generational income mobility, that is, the degree to which parents’ incomes determine their children’s incomes. A strong correlation between the parents’ and children’s incomes indicates that societal institutions are not particularly open and that family background is a discriminating factor. The essential finding of the studies in this area has been that children’s incomes are correlated with the parents’ incomes in all countries (Österbacka, 2004; Corak, 2013). Childhood background has a deciding influence everywhere, so none of the countries studied are completely open societies. However, some are more open than others.
+
+It appears that the Nordic countries are somewhat more open than most other countries (Figure 5). The intergenerational correlation between parents and children varies within the Nordic countries from .15 to .20, whereas in the United States the corresponding figure is .40–.60. This result is attributed to the educational system: In the Nordic countries, secondary and upper secondary education and university are tuition-free, and there is a universal support system for students, which covers an important part of their living expenses (including rent). The state also guarantees study loans, which allows all students, irrespective of family background, to finance their studies. Thus, the Nordic educational system is geared towards promoting equal opportunity allowing the full mobilization of the nations’ human resources to boost innovation and economic development.
+
+```{r figuuri5}
+if (!file.exists("./local_data/data-key-inequality-workbook.RData")){
+  download.file("http://www.lisdatacenter.org/wp-content/uploads/data-key-inequality-workbook.xlsx",
+                destfile = "./local_data/data-key-inequality-workbook.xlsx")
+  dat <- read_excel("./local_data/data-key-inequality-workbook.xlsx")
+  dat <- gather(dat, key = variable, value = value, 3:25)
+  names(dat) <- c("country","wave","variable","value")
+  save(dat, file="./local_data/data-key-inequality-workbook.RData")
+} else load("./local_data/data-key-inequality-workbook.RData")
+
+
+dat$variable[dat$variable %in% "Children Poverty Rates - Two-Parent Families (50%)"] <- "Child Poverty Rates - Two-parent families (50%)"
+dat$variable[dat$variable %in% "Children Poverty Rates - Single-Mother Families (50%)"] <- "Child Poverty Rates - Single-mother families (50%)"
+
+
+dat1 <- dat %>% filter(variable %in% c("Child Poverty Rates - Two-parent families (50%)",
+                               "Child Poverty Rates - Single-mother families (50%)",
+                               "Gini Coefficient")) %>%
+  mutate(country=gsub(pattern=" [0-9]", replacement="_",country),
+         country=gsub(pattern="LIS - ", replacement="",country)) %>%
+  separate(country, c("country","year"), sep = "_", remove = TRUE) %>%
+  mutate(year = ifelse(year <= 900, paste0(2,year), paste0(1,year)),
+         year = as.integer(year)) %>%
+  group_by(country,variable) %>%
+    filter(year == max(year),
+           row_number() == 1) %>%
+  ungroup() %>%
+  select(-wave,-year) %>%
+  spread(variable, value) %>%
+  mutate(regime = recode_regime2(country)) %>%
+  filter(!is.na(regime))
+  # mutate(regime = ifelse(is.na(regime), "other",regime))
+
+
+
+
+
+# manually copy from the plot
+dd <- read.table(textConnection('
+"country" "Inter-generational income mobility"
+"Denmark" 16
+"Norway" 17
+"Finland" 18
+"Canada" 20
+"Sweden" 25
+"Germany" 32
+"France" 41
+"Italia" 43
+"United Kingdom" 48
+"United States" 49
+'),header=TRUE, stringsAsFactors=FALSE)
+
+dat1 <- left_join(dat1,dd)
+
+p <- ggplot(dat1, aes(x=`Child Poverty Rates - Two-parent families (50%)`,
+                      y=`Child Poverty Rates - Single-mother families (50%)`,
+                      color=regime,
+                      fill=regime,
+                      group=country))
+# plot
+# p <- p + geom_smooth(method="lm", aes(group=1), se=FALSE)
+p <- p + geom_point(size=2, color="black", show.legend=F)
+p <- p + ggrepel::geom_label_repel(
+  aes(label = country), show.legend=T, alpha=.8,
+  # fontface = 'bold', color = 'white',size=3
+  fontface = 'bold', size=3
+)
+# p <- p + facet_wrap(~regime, scales = "fixed", ncol = 2)
+# p <- p + ggrepel::geom_label_repel(
+#   data=dat2[dat2$Year == 2010,],
+#   aes(fill = factor(rnk), label = Country), show.legend=F, alpha=.6,
+#   fontface = 'bold', color = 'white',
+#   box.padding = unit(0.25, "lines"),
+#   point.padding = unit(0.5, "lines")
+# )
+p <- p + theme_minimal() + theme(legend.position = "bottom") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 9)) +
+  # theme(axis.text.x= element_text(size = 9, angle=90, vjust= 0.5)) +
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 11, face = "bold")) +
+  guides(colour = guide_legend(override.aes = list(size=4))) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p1 <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1))
+p <- p + scale_fill_manual(values=c("grey0","grey20","grey40","grey60","grey80","grey90"))
+p <- p + scale_color_manual(values=c("white","white","white","black","black","black"))
+p1 <- p
+# p1
+
+names(dat1)[6] <- "Inter-generational income mobility"
+
+dat1$`Inter-generational income mobility` <- ifelse(is.na(dat1$`Inter-generational income mobility`),0,dat1$`Inter-generational income mobility`)
+
+p <- ggplot(dat1, aes(x=`Gini Coefficient`,
+                      y=`Inter-generational income mobility`,
+                      color=regime,
+                      fill=regime,
+                      group=country))
+# plot
+# p <- p + geom_smooth(method="lm", aes(group=1), se=FALSE)
+p <- p + geom_point(size=2,color="black", show.legend=F)
+p <- p + ggrepel::geom_label_repel(
+  aes(label = country), show.legend=T, alpha=.8,
+  # fontface = 'bold', color = 'white',size=3
+  fontface = 'bold', size=3
+)
+
+p <- p + theme_minimal() + theme(legend.position = "none") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 9)) +
+  # theme(axis.text.x= element_text(size = 9, angle=90, vjust= 0.5)) +
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 11, face = "bold")) +
+  guides(colour = guide_legend(override.aes = list(size=4))) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1))
+p <- p + scale_fill_manual(values=c("grey0","grey20","grey40","grey60","grey80","grey90"))
+p <- p + scale_color_manual(values=c("white","white","white","black","black","black"))
+p2 <- p + scale_y_continuous(trans="reverse", limits = c(50,10))
+
+# library(gtable)
+# library(grid) # low-level grid functions are required
+# g1 <- ggplotGrob(p1)
+# g1 <- gtable_add_cols(g1, unit(0,"mm")) # add a column for missing legend
+# g2 <- ggplotGrob(p2)
+# g <- cbind(g1, g2, size="first") # stack the two plots
+# # g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
+# # center the legend vertically
+# # g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
+# grid.newpage()
+```
+
+
+
+```{r childpov, echo=FALSE, fig.width=8, fig.height=14, fig.pos="h!", fig.cap="Child poverty (left-hand panel) and income inequality and intergenerational income mobility (right-hand panel). Source: Luxembourg Income Study (2016 )"}
+library(cowplot)
+plot_grid(p1, p2, nrow = 2, align = "v")
+
+```

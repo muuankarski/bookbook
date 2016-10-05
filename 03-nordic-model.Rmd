@@ -1,0 +1,208 @@
+# Nordic model in social policy institutions?
+
+The central policy features of the Nordic model usually refer to generous and universal social programs that are effective in combating poverty, reducing inequality, and promoting social mobility. Universalism is about coverage of the relevant national population for the particular scheme, and the core income-transfer schemes cover the whole population. Universalism is one of the most important trademarks of the Nordic welfare state and, in principle, social benefits are for all. Thus, the ideal of the Nordic model is that any program must cover all population categories. Universality has its roots in the tradition of people’s insurance. Generosity, for its part, deals with the level and adequacy of cash benefits in relation to previous income.
+
+In Figure 2^[Indicators used in Figure 2 pertain to mean values of old-age pensions, sickness, and work-accident and unemployment insurance programs. Universality is a mean for coverage of those schemes (insured / total population in pensions (%), and insurance / total labor force for other insurance programs (%). Generosity is mean replacement level for the four schemes, expressed as a ratio between net benefit and net wage at the average income level. The interpretation of the indices is straightforward: in universality, 0% indicates that nobody is insured under any program and 100% indicates that the total population in risk in covered. Consequently, 0% in generosity refers to a situation where there are no benefits at all available in any of the four schemes, while the maximum value of 100% pertains to full compensation in all the schemes (net benefit = net income). Data for these measures are based on data from the Social Insurance Entitlements Dataset (SIED), provided as part of the Social Policy Indicators Database (SPIN), housed at the Swedish Institute for Social Research, University of Stockholm (see, e.g., Korpi & Palme, 1998).] we have depicted the level of compensations for income loss in pensions, sickness benefits, unemployment insurance, and work-accident insurance as, “generosity.” Generosity is the mean of the compensation rates (net benefits as a percentage of net average wage at each point in time) in the four income-transfer schemes (SOFI, 2016). “Universalism,” in turn, pertains to the mean coverage rates (the insured as a percentage of the labor force at each point in time). 
+
+```{r figuuri2}
+#  __ _                      ____
+# /  _(_) __ _ _   _ _ __ ___|___ \
+# | |_| |/ _` | | | | '__/ _ \ __) |
+# |  _| | (_| | |_| | | |  __// __/
+# |_| |_|\__, |\__,_|_|  \___|_____|
+#         |___/
+# Copy documentation
+if (!file.exists("./data/SIED Documentation 150625.pdf")){
+  file.copy(from = "C:/btsync/data/spin/sied/SIED Documentation 150625.pdf",
+            to = "./data/SIED Documentation 150625.pdf")
+  file.copy(from = "C:/btsync/data/spin/scip/Codebook SCIP.pdf",
+            to = "./data/Codebook SCIP.pdf")
+  file.copy(from = "C:/btsync/data/spin/sied/SIED data 151012.xlsx",
+            to = "./data/SIED data 151012.xlsx")
+  file.copy(from = "C:/btsync/data/spin/scip/SCIP 1930-2005 131017 (beta).sav",
+            to = "./data/SCIP 1930-2005 131017 (beta).sav")
+  dat <- haven::read_sav("./data/SCIP 1930-2005 131017 (beta).sav")
+  save(dat, file="./local_data/SCIP 1930-2005 131017 (beta).RData")
+  dat <- readxl::read_excel("C:/btsync/data/spin/sied/SIED data 151012.xlsx")
+  save(dat, file="./local_data/SIED data 151012.RData")
+}
+# variable labels from old daya
+# load("./local_data/SCIP 1930-2005 131017 (beta).RData")
+# labdat <- as.data.frame(Hmisc::label(dat))
+# d <- gather(labdat[1,], key = varname, value = label)
+# DT::datatable(d)
+
+# load the new SIED data
+load("./local_data/SIED data 151012.RData")
+
+dat1 <- dat %>%
+  filter(year %in% c(1950,1970,1990,2010)) %>%
+  mutate(countrya = ifelse(countrya == "UK", "United Kingdom",
+                           ifelse(countrya == "US", "United States",
+                                  countrya))) %>%
+  group_by(countrya,year) %>%
+  # Universality is a mean for coverage of those schemes
+  # (insured / total population in pensions (%), and insurance / total labour force for other insurance programs (%))
+  mutate(universalism = sum(pcovratp, # Pension coverage
+                             ucovratl, # unemp, labour force coverage rate
+                             scovratl, # sickness, labour force coverage rate
+                             acovratl, # accident, labour force coverage rate
+                             na.rm = TRUE)/4,
+         generosity   = mean(
+           unmsinet/netapwsi, # Unemployment, net benefit 26w + APWW 26w, single
+           sicsinet/netapwsi, # Sickness, net benefit 26w + APWW 26w, single
+           accsinet/netapwsi, # Accident net benefit 26w + APWW 26w, single
+           pstwnesi/netapwsi, # Pension, yearly standard worker net, single)
+           na.rm=TRUE)) %>%
+  group_by(countrya) %>% mutate(n_by_group = n()) %>%
+ select(countrya,
+        year,
+        universalism,
+        generosity,
+        n_by_group,
+        pcovratp, # Pension coverage
+        ucovratl, # unemp, labour force coverage rate
+        scovratl, # sickness, labour force coverage rate
+        acovratl,
+        unmsinet,
+        sicsinet,
+        accsinet,
+        pstwnesi
+        ) %>%
+  rename(Country = countrya,
+         Year = year) %>%
+  mutate(regime = recode_regime2(Country)) %>%
+  filter(#!universalism %in% 1,
+        !is.na(regime)) %>% ungroup()
+        # n_by_group > 2)
+
+dat2 <- left_join(dat1,
+                  dat1 %>% filter(Year == 2010) %>% group_by(regime) %>%
+                    mutate(rnk = rank(universalism)) %>% select(Country,rnk)
+                  )
+
+# dat2 <- dat2[!dat2$regime %in% c("Eastern Europe","East Asian"),]
+#
+# p <- ggplot(dat2, aes(x=universalism,
+#                       y=generosity,
+#                       color=regime,
+#                       group=Country))
+# # plot
+# p <- p + geom_point(size=1.5) ## ---- geom_path(size=1)
+# p <- p + facet_wrap(~Year, scales = "fixed", ncol = 2)
+# p <- p + ggrepel::geom_label_repel(
+#   aes(fill = regime, label = Country), show.legend=F, alpha=.6, size=3,
+#   fontface = 'bold', color = 'white',
+#   box.padding = unit(0.25, "lines"),
+#   point.padding = unit(0.5, "lines")
+# )
+# p <- p + theme_minimal() + theme(legend.position = "top") +
+#   theme(text = element_text(family = fontti, size= 12)) +
+#   theme(legend.title = element_blank()) +
+#   theme(axis.text.y= element_text(size = 9)) +
+#   # theme(axis.text.x= element_text(size = 9, angle=90, vjust= 0.5)) +
+#   theme(axis.title = element_text(size = 11, face = "bold")) +
+#   theme(legend.text= element_text(size = 11)) +
+#   theme(strip.text = element_text(size = 11, face = "bold")) +
+#   guides(colour = guide_legend(override.aes = list(size=4))) +
+#   theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+#                                     linetype="solid"))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + coord_cartesian(xlim=c(0,1.1),ylim=c(0,1.1))
+# p
+
+
+# Universality is a mean for coverage of those schemes
+# (insured / total population in pensions (%), and insurance / total labour force for other insurance programs (%))
+dat2 <- dat2[!dat2$regime %in% c("Eastern Europe","East Asian"),]
+# plot
+p <- ggplot(dat2, aes(x=universalism,
+                      y=generosity,
+                      color=factor(rnk),
+                      group=Country))
+
+p <- p + geom_point(size=1.5)
+p <- p + geom_path(size=1)
+p <- p + ggrepel::geom_text_repel(
+  data=dat2 %>% filter(Year %in% c(1970,1990)),
+  aes(label = Year), show.legend=F, alpha=.5, color="dim grey",
+  fontface = 'bold', size=2.5
+)
+p <- p + facet_wrap(~regime, scales = "free", ncol = 2)
+
+p <- p + ggrepel::geom_label_repel(
+  data=dat2 %>% filter(Year == 2010,
+                       rnk < 4),
+  aes(fill = factor(rnk), label = paste(Country,Year)), show.legend=F, alpha=.7,
+  fontface = 'bold', color = "white", size=2.5,lineheight=.8,
+  box.padding = unit(0.25, "lines"),
+  point.padding = unit(0.5, "lines"),
+  nudge_x=.01,nudge_y=-.03
+)
+p <- p + ggrepel::geom_label_repel(
+  data=dat2 %>% filter(Year == 2010,
+                       rnk >= 4),
+  aes(fill = factor(rnk), label = paste(Country,Year)),  show.legend=F, alpha=.7,
+  fontface = 'bold', color = "black", size=2.5,lineheight=.8,
+  box.padding = unit(0.25, "lines"),
+  point.padding = unit(0.5, "lines"),
+  nudge_x=.05,nudge_y=-.05
+)
+
+
+p <- p + ggrepel::geom_label_repel(
+  data=dat2 %>% filter(Year == min(Year),
+                       rnk < 4),
+  aes(fill = factor(rnk), label = paste(Country,Year)), show.legend=F, alpha=.7,
+  fontface = 'bold', color = 'white', size=2.5, lineheight=.8,
+  box.padding = unit(0.25, "lines"),
+  point.padding = unit(0.5, "lines"),
+  nudge_x=-.03,nudge_y=-.02
+)
+p <- p + ggrepel::geom_label_repel(
+  data=dat2 %>% filter(Year == min(Year),
+                       rnk >= 4),
+  aes(fill = factor(rnk), label = paste(Country,Year)), show.legend=F, alpha=.7,
+  fontface = 'bold', color = 'black', size=2.5,lineheight=.8,
+  box.padding = unit(0.25, "lines"),
+  point.padding = unit(0.5, "lines"),
+  nudge_x=.03,nudge_y=.02
+)
+
+
+p <- p + theme_minimal() + theme(legend.position = "none") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 9)) +
+  # tältä riviltä voi muuttaa sitä ja tätä
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 11, face = "bold")) +
+  guides(colour = guide_legend(override.aes = list(size=4))) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_fill_grey(start = .25, end = .05)
+# p <- p + scale_color_grey(start = .25, end = .05)
+# p <- p + scale_color_manual(values=c("black","grey15","grey35","grey60","grey75"))
+p <- p + scale_fill_manual(values=c("black","grey15","grey25","grey45","grey60","grey75","grey85","grey95"))
+                                    # "black","grey15","grey35","grey60","grey75"))
+p <- p + scale_color_manual(values=c("black","grey5","grey15","grey35","grey45","grey65","grey75","grey85"))
+# p <- p + scale_color_manual(values=c("white","white","white","white","black","black","black"))
+p <- p + coord_cartesian(xlim=c(0.2,1.1),ylim=c(0.5,1))
+```
+
+
+```{r gini, echo=FALSE, fig.width=9, fig.height=9, fig.pos="h!", fig.cap="Generosity and coverage of social insurance in OECD countries in 1950, 1970, 1990, and 2010"}
+
+print(p)
+
+```
+
+In the 1950s and 1960s, national pension reforms guaranteed a basic pension to everyone, and the coverage of the other forms of social insurance expanded. The introduction of employment-related pensions and other income-maintenance schemes improved income-loss compensations. However, the Nordic welfare states are not the most generous; for example, benefits in Central and Southern Europe may be higher (see, e.g., Ferrera, 2010). The Scandinavian model is unique in combining generosity with universality. In Central Europe, benefits might be more generous but not that universal, and in the liberal, or Anglo-American model, they are neither universal nor generous (Kvist, 2007). The Nordic model had its heyday in the late 1980s and early 1990s. Sweden, Norway, Denmark, and Finland formed a group with a high degree of universalism and generous benefits. Nordic countries can still be considered as the most universal of the welfare regimes, but they have become less generous. With the exception of Norway, benefit levels in social insurance schemes have been cut and generosity is moving towards the OECD mean, and other countries are catching up in terms of the generosity of their social protection schemes.
+
+Regarding the generosity of benefits, two competing ideas, or social policy ideologies, somewhat separate the Nordic countries: a) income equalization by favoring low-income groups and b) a more meritocratic insurance principle that compensates in relation to previous income. These two issues have been solved differently in different Nordic countries. It may be argued that Finland, with earnings-related benefits without absolute ceilings, has adopted option b and that Denmark, with generous low-income benefits and low ceilings, has adopted option a, with Norway and Sweden falling somewhere in between. Each strategy has its pros and cons. The income equalization systems, as in Denmark, are supposed to benefit the poor, whereas the more meritocratic earnings-related schemes are supposed to benefit the most advantaged groups. The latter idea has been vividly discussed in Sweden, which is struggling with problems of maintaining the insurance character for the large majority of wage earners since more and more people earn above the benefit ceiling. It is feared that this process of eroding income-relatedness may have far-reaching effects on popular support for public social insurance, as all major groups in the labor market might eventually rely on private, individual, or collective insurance alternatives instead of the legislated schemes to obtain adequate insurance.
+
+

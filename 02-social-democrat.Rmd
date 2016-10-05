@@ -1,0 +1,470 @@
+# Still a social democratic model?
+
+If we label a welfare-state model as “social democratic,” we concentrate on only one of the many political forces that have historically created the model – the labor movement. There are good reasons for this focus since there is an abundance of studies giving support to the central role of the labor movement, either trade unions or social democratic parties, in establishing the specific Nordic welfare-state model (Korpi, 1978, 1980; Stephens, 1979; Esping-Andersen, 1988; Esping-Andersen & Korpi, 1987).
+
+In Sweden, and perhaps in Norway too, the epithet “the social democratic welfare state” is descriptive of the political history of the welfare state (Figure 1). In Sweden, in particular, the Social Democratic Party was dominant, collecting nearly 50% of all votes up to the 1970s and being in government since the Second World War except for the 1976–1982, 1991–1994, 2006–2014, and 2010 elections. In Norway, the Labour Party had a single-party majority in Parliament up to the 1960s; thereafter the party has formed minority cabinets or been in coalitions with other parties. The Labour Party’s dominance has occasionally been interrupted by bourgeois minority or coalition cabinets. In comparison to their Northern Scandinavian neighbors, Danish social democrats collected “only” around 40% of the votes from 1945 to the 1970s, and were able to rule by minority cabinets and to later form coalitions with other parties. In Denmark, Social Democratic rule has been less stable than in Norway or Sweden.
+
+The story for Finland and Iceland is different. In Finland, the Social Democratic Party (SDP) has traditionally collected 25% to 30% of the votes, and Finnish politics is characterized by coalitions where either the Social Democratic Party or the Agrarian / Centre Party have been the senior party occupying the prime minister position. It is important to remember that in Finland a party to the left of the Social Democrats, that is, the Finnish People’s Democratic Front (SKDL, later Left Alliance) was much stronger than any communist political movement in Scandinavia. In some elections (1948, 1958, and 1966) left-wing parties had an absolute majority in the Finnish Parliament, and the joint share of parliamentary seats held by the SDP and the SKDL has been parallel to the share of parliamentary seats held by social democrats and communists in Sweden and Norway. However, in Finnish politics the SKDL and the agrarians often found a common line (social policy for the agrarian population: flat-rate benefits to everyone) and the SDP and conservatives formed their own group (earnings-related benefits for employees).
+
+In the case of Iceland, the label “social democratic” perhaps is the least appropriate. Up to the 2000s, the share of votes cast for social democrats hovered between 10 and 20%. Not until the early 2000s did the share reach the level in the other Nordic countries. In the early 2000s, the social democrats collected as much as 30% of all votes. However, in the 2013 elections, the popularity of social democracy fell to its previous low levels (13%). With the exception of Iceland, there are clear downward trends in all the other Nordic countries, and consequently, the Nordic region has become more homogenous albeit less social democratic as indicated in Figure 1.
+
+
+```{r knitr_setup, include=FALSE}
+
+library(knitr)
+knitr::opts_chunk$set(list(echo=FALSE,
+                           eval=TRUE,
+                           cache=TRUE,
+                           warning=FALSE,
+                           message=FALSE))
+
+```
+
+```{r setup1}
+
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(extrafont)
+loadfonts()
+library(ggplot2)
+library(scales)
+library(countrycode)
+library(survey)
+library(readxl)
+library(readr)
+library(svglite)
+library(showtext)
+# font.add("Fira Sans","FiraSans-Medium.ttf")
+
+#fonts
+fontti <- "Fira Sans"
+
+
+# create folders
+# if (!file.exists("./plot_csv/")) dir.create("./plot_csv/", recursive = TRUE)
+# if (!file.exists("./plot/")) dir.create("./plot/", recursive = TRUE)
+# if (!file.exists("./data/")) dir.create("./data/", recursive = TRUE)
+# if (!file.exists("./local_data/")) dir.create("./local_data/", recursive = TRUE)
+
+# source functions
+# source("./code/functions.R")
+# source("./code/color_palettes.R")
+
+clist <- c("Denmark","Finland","Norway","Sweden","Iceland",                               #
+           "Austria","Belgium","France","Germany","Luxembourg","Netherlands","Switzerland",   #
+           "United Kingdom","Ireland","New Zealand","Australia","United States","Canada", #
+           "Cyprus", "Greece","Italy", "Malta","Portugal","Spain",                                #
+           "Bulgaria","Czech Republic","Estonia","Hungary","Latvia","Lithuania","Poland","Romania","Slovakia","Slovenia","Slovak Republic",
+           "Korea","Japan")
+
+
+#             _
+#    ___ ___ | | ___  _ __ ___
+#   / __/ _ \| |/ _ \| '__/ __|
+#  | (_| (_) | | (_) | |  \__ \
+#   \___\___/|_|\___/|_|  |___/
+#
+
+
+library(RColorBrewer)
+fill_palette <- colorRampPalette(brewer.pal(9,"Oranges"))(6)
+palette_distinctive1 <- colorRampPalette(brewer.pal(6,"Dark2"))(6)
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73","#984ea3", "#F0E442", "#0072B2", "#D55E00", "#CC79A7","#4daf4a")
+palette_distinctive2 <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628","#f781bf")
+palette_distinctive <- c("#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000",
+                         "#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#000000")
+
+#  _____                 _   _
+# |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
+# | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+# |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
+# |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+#
+
+recode_regime2 <- function(var) {
+  var <- as.character(var)
+  var[var %in% c("Austria", "Belgium", "Switzerland", "Germany", "France", "Luxembourg", "Netherlands")] <- "Western Central Europe"
+  var[var %in% c("Bulgaria", "Czech Republic", "Estonia", "Hungary", "Lithuania", "Latvia", "Poland", "Romania", "Slovenia", "Slovak Republic", "Croatia","Slovakia")] <- "Eastern Europe"
+  var[var %in% c("Cyprus", "Greece", "Spain", "Italy", "Malta", "Portugal")] <- "Southern Europe"
+  var[var %in% c("Denmark", "Finland", "Iceland", "Norway", "Sweden")] <- "Nordic Countries"
+  var[var %in% c("Ireland", "United Kingdom","Australia","United States","Canada","New Zealand")] <- "Anglo-Saxon Countries"
+  var[var %in% c("Japan", "Korea, Republic of","Korea")] <- "East Asian"
+  var[!(var %in% c("Western Central Europe",
+                   "Eastern Europe",
+                   "Southern Europe",
+                   "Nordic Countries",
+                   "Anglo-Saxon Countries",
+                   "East Asian"))] <- NA
+  var
+}
+
+save_plot_data <- function(plot_object="p",
+                           df_name = df,
+                           figname = "fig1_vote_shares",
+                           plot_width  = 11,
+                           plot_height = 8,
+                           plot_width_png = 1500,
+                           plot_height_png = 1200){
+
+  # Save data
+  write.csv(df_name, file=paste0("./plot_csv/",figname,".csv"), row.names = F)
+  # Save plot
+  # png
+  png(paste0("./plot/",figname,".png"), width=plot_width_png, height=plot_height_png, res = 150)
+  print(get(plot_object))
+  graphics.off()
+  # pdf
+  pdf(paste0("./plot/",figname,".pdf"), width=plot_width, height=plot_height, useDingbats = FALSE, onefile = FALSE)
+  print(get(plot_object))
+  graphics.off()
+  # embed
+  embed_fonts(file=paste0("./plot/",figname,".pdf"),
+              outfile=paste0("./plot/",figname,"_emb.pdf"))
+  # svg
+  svglite(paste0("./plot/",figname,".svg"), width=plot_width, height=plot_height, standalone = TRUE)
+  print(get(plot_object))
+  graphics.off()
+  # showtext pdf & svg
+  showtext.auto()  ## automatically use showtext for new devices
+  pdf(paste0("./plot/",figname,"_st.pdf"), width=plot_width, height=plot_height, useDingbats = FALSE, onefile = FALSE)
+  print(get(plot_object))
+  graphics.off()
+  svglite(paste0("./plot/",figname,"_st.svg"), width=plot_width, height=plot_height, standalone = TRUE)
+  print(get(plot_object))
+  graphics.off()
+
+  showtext.auto(FALSE)  ## turn off if no longer needed
+
+}
+
+
+print_download_links <- function(figname){
+
+  cat(paste0(
+    "- Download data in [.csv](./plot_csv/",figname,".csv) \n",
+    "- Download plot in [.png](./plot/",figname,".png) \n",
+    "- Download plot in [.pdf](./plot/",figname,".pdf) \n",
+    "- Download plot in [.pdf](./plot/",figname,"_emb.pdf) with fonts embedded\n",
+    "- Download plot in [.pdf](./plot/",figname,"_st.pdf) with fonts as shapes\n",
+    "- Download plot in [.svg](./plot/",figname,".svg) \n",
+    "- Download plot in [.svg](./plot/",figname,"_st.svg) with fonts as shapes\n"
+  ))
+}
+
+
+```
+
+
+
+```{r figuuri1}
+
+#    __  _                           _
+#   / _|(_)  __ _  _   _  _ __  ___ / |
+#  | |_ | | / _` || | | || '__|/ _ \| |
+#  |  _|| || (_| || |_| || |  |  __/| |
+#  |_|  |_| \__, | \__,_||_|   \___||_|
+#           |___/
+#
+#
+#%#% --------------------------------------- #%#%
+#%#% Scrape wikipedia
+#%#% --------------------------------------- #%#%
+
+if (!file.exists("./local_data/df_fi.RData")){
+
+  # install.packages("pxweb")
+  library(pxweb)
+  library(dplyr)
+  library(ggplot2)
+  library(ggrepel)
+  library(stringr)
+  library(tidyr)
+  library(rvest)
+
+  years <- c(1954,1958,1962,1966,1970,1972,1975,1979,1983,1987,1991,1995,1999,2003,2007,2011,2015)
+
+  dd <- data.frame()
+  for (y in years){
+    urli <- paste0("https://fi.wikipedia.org/wiki/Eduskuntavaalit_",y)
+    htmli <- read_html(urli)
+    luokka <- "table.prettytable"
+    if (y %in% c(1958,1979,1983,1987,1991,2011,2015)) luokka = "table.wikitable"
+    n = 2
+    if (y %in% c(1983,1987)) n = 3
+    if (y %in% c(2007,2011,2015)) n = 1
+    d <- html_table(html_nodes(htmli, luokka)[[n]], fill = T)
+    d <- d[-1,]
+    d <- d[c(2,5)]
+    names(d) <- c("party","value")
+    d <- d[ with(d, grepl("Sosialidemokraattinen Puolue", party)),]
+    new_row <- data.frame(party = d$party[1],
+                          value = d$value[1],
+                          year = y)
+    dd <- rbind(dd,new_row)
+  }
+
+  ddd <- dd
+  dd$value <- gsub(pattern = "%", replacement = "", x= dd$value)
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- str_trim(dd$value)
+  dd$value <- as.factor(dd$value)
+  dd$value = as.numeric(levels(dd$value))[dd$value]
+  dd$party <- NULL
+  dd$country <- "Finland"
+  df_fi <- dd
+  save(df_fi, file="./local_data/df_fi.RData")
+
+
+} else load("./local_data/df_fi.RData")
+
+
+# Sweden
+if (!file.exists("./local_data/df_se.RData")){
+
+  library(XML)
+  library(rvest)
+  html <- html("https://sv.wikipedia.org/wiki/Resultat_i_val_till_Sveriges_riksdag")
+  d = html_table(html_nodes(html, "table")[[1]], fill = T)
+  names(d) <- d[1,]
+  d <- d[-1,]
+  d <- gather(d, party, value, 2:13)
+
+  df_se <- d %>% filter(grepl("Social",party),
+                        grepl("demokraterna",party)) %>%
+    mutate(År = as.integer(År),
+            value = gsub(x=value, pattern =",", replacement = "."),
+            value = as.factor(value),
+            value = as.numeric(levels(value))[value]) %>%
+    filter(År >= 1950) %>%
+    rename(year = År) %>%
+    mutate(country = "Sweden") %>%
+    select(-party)
+  save(df_se, file="./local_data/df_se.RData")
+
+
+} else load("./local_data/df_se.RData")
+
+
+# Norway
+
+if (!file.exists("./local_data/df_no.RData")){
+
+  html <- html("https://no.wikipedia.org/wiki/Stortingsvalg_1945%E2%80%93")
+  dd <- data.frame()
+  tbs <- 2:18
+  ys <- c(2013,2009,2005,2001,1997,1993,1989,1985,1981,1977,1973,1969,1965,1961,1957,1953,1949,1945)
+
+  for (y in 1:length(tbs)){
+    d = html_table(html_nodes(html, "table")[[tbs[y]]], fill = T)
+    if (y != 1) d <- d[c(1,4)]
+    if (y == 1) d <- d[c(2,4)]
+    names(d) <- c("party","value")
+    d <- d[ with(d, grepl("Arbeiderparti", party)),]
+    new_row <- data.frame(party = d$party[1],
+                          value = d$value[1],
+                          year = ys[y])
+    dd <- rbind(dd,new_row)
+  }
+  dd <- dd[!is.na(dd$value),]
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- str_trim(dd$value)
+  dd$value <- as.factor(dd$value)
+  dd$value = as.numeric(levels(dd$value))[dd$value]
+  dd$party <- NULL
+  dd$country <- "Norway"
+  df_no <- dd
+  save(df_no, file="./local_data/df_no.RData")
+
+} else load("./local_data/df_no.RData")
+
+
+
+# Denmark
+
+# https://da.wikipedia.org/wiki/Folketingsvalg#Folketingsvalg_efter_1953-grundloven
+
+if (!file.exists("./local_data/df_dk.RData")){
+
+  years <- c(1957,1960,1964,1966,1968,1971,1973,1975,1977,1979,1981,1984,1987,1988,1990,1994,1998,2001,2005,2007,2011,2015)
+
+  dd <- data.frame()
+  for (y in years){
+    urli <- paste0("https://da.wikipedia.org/wiki/Folketingsvalget_",y)
+    htmli <- read_html(urli)
+    luokka <- "table.wikitable"
+    if (!y %in% 2011){
+      n = 1
+      if (y == 2015) n = 4
+      d <- html_table(html_nodes(htmli, luokka)[[n]], fill = T)
+      if (!y %in% c(1984,1987,1988,1990,1994,1998,2001,2005,2007,2011,2015)) d <- d[c(1,4)]
+      if (y %in% c(1984,1987,1988,1990,1994,1998,2001,2005,2007,2015)) d <- d[c(2,5)]
+    } else {
+      n = 3
+      d <- html_table(html_nodes(htmli, luokka)[[n]], fill = T)
+      d <-
+        d <- d[1:21,c(2,5)]
+    }
+    names(d) <- c("party","value")
+    d <- d[ with(d, grepl("Socialdemok", party)),]
+    new_row <- data.frame(party = d$party[1],
+                          value = d$value[1],
+                          year = y)
+    dd <- rbind(dd,new_row)
+  }
+
+  ddd <- dd
+  dd$value <- gsub(pattern = "%", replacement = "", x= dd$value)
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- gsub(pattern = ",", replacement = ".", x= dd$value)
+  dd$value <- str_trim(dd$value)
+  dd$value <- as.factor(dd$value)
+  dd$value = as.numeric(levels(dd$value))[dd$value]
+  dd$party <- NULL
+  dd$country <- "Denmark"
+  df_dk <- dd
+  save(df_dk, file="./local_data/df_dk.RData")
+
+} else load("./local_data/df_dk.RData")
+
+
+
+# Iceland
+
+# http://px.hagstofa.is/pxen/pxweb/en/Ibuar/Ibuar__kosningar__althingi__althurslit/KOS02121.px
+
+if (!file.exists("./local_data/df_ic.RData")){
+
+  d <- read.csv("./local_data/KOS02121(1).csv", stringsAsFactors = FALSE, sep=";", skip = 1)
+  df_ic <- d %>% filter(Category %in% "Percentage of valid votes") %>%
+    gather(., key = year, value = value, 3:17) %>%
+    mutate(year = gsub(pattern="X",replacement="",x = year),
+           year = as.integer(year),
+           # for value
+           value = as.factor(value),
+           value = as.numeric(levels(value))[value]
+    ) %>%
+    filter(!is.na(value),
+           grepl("Social Democratic",Political.organisation)) %>%
+    mutate(country = "Iceland") %>%
+    select(-Category,-Political.organisation)
+  save(df_ic, file="./local_data/df_ic.RData")
+
+} else load("./local_data/df_ic.RData")
+
+
+df_nr <- rbind(df_fi,df_se,df_no,df_dk,df_ic)
+
+#%#% --------------------------------------- #%#%
+#%#% Plot
+#%#% --------------------------------------- #%#%
+
+
+p <- ggplot(df_nr, aes(x=year,y=value,group=country))
+# disable smooth..
+# p <- p + geom_smooth(aes(fill = country),method="loess", size = .5, alpha=.15, linetype="dashed")
+p <- p + geom_line(aes(color=country),size=1)
+# p <- p + ggrepel::geom_text_repel(data=df_nr %>% group_by(country) %>%
+#                                     filter(year == max(year)) %>%
+#                                     mutate(value = round(value,1)) %>%
+#                                     ungroup(),
+#                            aes(x=year,y=value,label=paste(country,"\n",value,"%"))
+#   )
+# p <- p + ggrepel::geom_text_repel(data=df_nr %>% group_by(country) %>%
+#                                     filter(year == min(year)) %>%
+#                                     mutate(value = round(value,1)) %>%
+#                                     ungroup(),
+#                                   aes(x=year,y=value,label=paste(country,"\n",value,"%"))
+# )
+p <- p + ggrepel::geom_label_repel(data=df_nr %>% group_by(country) %>%
+                                     filter(year == max(year)) %>%
+                                     filter(country %in% c("Finland","Norway")) %>%
+                                     mutate(value = round(value,1)) %>%
+                                     ungroup(),
+                                   aes(x=year,y=value,label=paste0(country,"\n",value,"%"),fill=country),
+                                   lineheight=.8, alpha=.7,size=3.5,color="black",
+                                   label.padding = unit(0.15, "lines"),nudge_x = 2, nudge_y=1.5
+)
+p <- p + ggrepel::geom_label_repel(data=df_nr %>% group_by(country) %>%
+                                     filter(year == max(year)) %>%
+                                     filter(!country %in% c("Finland","Norway")) %>%
+                                     mutate(value = round(value,1)) %>%
+                                     ungroup(),
+                                   aes(x=year,y=value,label=paste0(country,"\n",value,"%"),fill=country),
+                                   lineheight=.8, alpha=.7,size=3.5,color="white",
+                                   label.padding = unit(0.15, "lines"),nudge_x = 2, nudge_y=-1
+)
+
+p <- p + ggrepel::geom_label_repel(data=df_nr %>% group_by(country) %>%
+                                     filter(year == min(year)) %>%
+                                     filter(country %in% c("Finland","Norway")) %>%
+                                     mutate(value = round(value,1)) %>%
+                                     ungroup(),
+                                   aes(x=year,y=value,label=paste0(country,"\n",value,"%"),fill=country),
+                                   lineheight=.8, alpha=.7,size=3.5,color="black",
+                                   label.padding = unit(0.15, "lines"),nudge_x = 2, nudge_y=-1
+)
+p <- p + ggrepel::geom_label_repel(data=df_nr %>% group_by(country) %>%
+                                     filter(year == min(year)) %>%
+                                     filter(!country %in% c("Finland","Norway")) %>%
+                                     mutate(value = round(value,1)) %>%
+                                     ungroup(),
+                                   aes(x=year,y=value,label=paste0(country,"\n",value,"%"),fill=country),
+                                   lineheight=.8, alpha=.7,size=3.5,color="white",
+                                   label.padding = unit(0.15, "lines"),nudge_x = 2, nudge_y=1
+)
+
+
+
+
+# VALUES AND YEARS FOR THE YEARS IN BETWEEN
+# p <- p + ggrepel::geom_text_repel(data=df_nr %>% group_by(country) %>%
+#                                     filter(year != c(min(year),max(year))) %>%
+#                                     mutate(value = round(value,1)) %>%
+#                                     ungroup(),
+#                                   aes(x=year,y=value,label=paste(year,"\n",value,"%")),size=2.5,alpha=.5
+# )
+
+
+p <- p + theme(legend.position="none")
+p <- p + theme_minimal() + theme(legend.position = "none") +
+  theme(text = element_text(family = fontti, size= 12)) +
+  theme(legend.title = element_blank()) +
+  theme(axis.text.y= element_text(size = 10)) +
+  theme(axis.text.x= element_text(size = 10, angle=90, vjust= 0.5)) +
+  theme(axis.title = element_text(size = 11, face = "bold")) +
+  theme(legend.text= element_text(size = 11)) +
+  theme(strip.text = element_text(size = 11, face = "bold")) +
+  guides(colour = guide_legend(override.aes = list(size=4))) +
+  theme(panel.border = element_rect(fill=NA,color="grey70", size=0.5,
+                                    linetype="solid"))
+# p <- p + scale_color_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_fill_manual(values=c(palette_distinctive1,palette_distinctive1))
+# p <- p + scale_fill_grey(start = .65, end = .05)
+# p <- p + scale_color_grey(start = .65, end = .05)
+p <- p + scale_fill_manual(values=c("black","grey80","grey30","grey60","grey10"))
+p <- p + scale_color_manual(values=c("black","grey80","grey30","grey60","grey10"))
+# p <- p + scale_color_manual(values=c("white","white","black","black","black"))
+p <- p + scale_x_continuous(breaks = sort(unique(df_nr$year)))
+p <- p + labs(x="",y="Share of votes cast in parliamentary elections (%)")
+#p
+```
+
+```{r socialdemocrat, fig.width=9, fig.height=8, fig.cap="The share of votes cast for the social democratic parties in the Nordic countries 1949 to 2015"}
+print(p)
+```
+
+
+There are also many studies challenging the interpretation of the social democratic welfare state. Some scholars emphasize the role of cross-class coalitions and political compromises. In some historical analyses, the focus is on the role of the agrarian legacy in the initial steps towards universalism. In the agrarian agenda, the if-to-them-then-also-to-us claim was very prominent and due to the sheer size of the agrarian population, insurance limited only to the working class was not politically feasible. Thus, agrarian demands for their share of social protection paved the way to people’s insurance instead of workers’ insurance. All this was in contrast to what happened in many Central European countries, notably Germany (e.g., Alestalo, Flora, & Uusitalo, 1985; Baldwin, 1990; Salminen, 1993; Åmark, 2005; Hort, 2014). There are also studies giving credit for the Nordic model to employers instead of to working-class movements (Salminen, 1993; Swenson, 2002).
+
+The social democratic interpretation of the development of the Nordic welfare state has also been questioned. We can ask to what extent, if any, have social democratic parties in different countries and at different times shared similar views on social policy to develop their welfare states. If we, for example, compare pension politics in the Nordic countries, we find substantial differences regarding both goals and the strategies to achieve them. The same goes for historical development within a country. Social democrats have changed their strategies depending on situational factors. This is not surprising. According to all these interpretations, the question is about political compromises and about often being satisfied with second-best solutions (Åmark, 2005). 
+
+As shown in Figure 1, historically there have been, and still are, substantial differences between the Nordic countries in the preconditions of social democratic politics. Support for social democracy has also declined. If bourgeois parties also have their say in designing social policies, when should we stop speaking about the social democratic model? Our argument is that political forces, their institutional configurations, and the outcomes of social policy institutions must be analyzed separately. 
